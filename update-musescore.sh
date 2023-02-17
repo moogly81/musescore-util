@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 
-osascript -e 'quit app "MuseScore"'
+# kill the instances of nightly build
+ps -e | grep Nightly |grep mscore |grep -v grep| awk '{print $1}' | while read -r PID
+do
+  echo "Killing the running program on pid $PID "
+  kill "$PID"
+done
 
 # cleanup older nightly versions
 find  /Volumes -name 'Muse*.app' -print0 2>/dev/null | while IFS= read -r -d '' file
@@ -15,22 +20,23 @@ do
 done
 
 #download new version
-curl  "https://ftp.osuosl.org/pub/musescore-nightlies/macos/4x/nightly/MuseScoreNightly-latest-x86_64.dmg" > ~/Downloads/musescore-nightly.dmg
-sleep 1
-hdiutil mount ~/Downloads/musescore-nightly.dmg
+curl  "https://ftp.osuosl.org/pub/musescore-nightlies/macos/4x/nightly/MuseScoreNightly-latest-x86_64.dmg" --output ~/Downloads/musescore-nightly.dmg
 
 
- appname=$(ls -1rt /volumes |grep -i musescore |tail -1)
- echo "appname=$appname"
+# mounting fs. It often fails the first time, I don't know why. 
+while ! hdiutil mount ~/Downloads/musescore-nightly.dmg 
+do 
+  echo "retrying to mount ~/Downloads/musescore-nightly.dmg"
+done
 
- find "/Volumes/$appname/" -name "MuseScore*.app"
- apppath=$(find "/Volumes/$appname" -name "MuseScore*.app")
-
-echo "apppath=$apppath"
-cp -R "$apppath"  /Applications/ 
-
+app_volume_name=$(ls -1rt /volumes |grep -i musescore |tail -1)
+apppath=$(find "/Volumes/$app_volume_name" -name "MuseScore*.app")
 application_name=$(basename "$apppath")
-echo "/Applications/$application_name"
 
+cp -R "$apppath"  /Applications/ 
 open "/Applications/$application_name"
 
+
+
+#diskutil list
+#hdiutil detach /dev/disk4 
