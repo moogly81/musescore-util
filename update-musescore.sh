@@ -20,18 +20,35 @@ do
 done
 
 #download new version
-curl  "https://ftp.osuosl.org/pub/musescore-nightlies/macos/4x/nightly/MuseScoreNightly-latest-x86_64.dmg" --output ~/Downloads/musescore-nightly.dmg
+latest_file=$(curl -s "https://ftp.osuosl.org/pub/musescore-nightlies/macos/4x/nightly/\?C\=M\;O\=A" | grep href | grep MuseScoreNightly | grep latest |grep -v master | head -1 | sed 's/^.*Muse/Muse/' | sed 's/dmg.*$/dmg/')
+url="https://ftp.osuosl.org/pub/musescore-nightlies/macos/4x/nightly/$latest_file"
+#echo "Downloading $url"
+curl -s "$url" --output ~/Downloads/musescore-nightly.dmg
+
+size=$(ls -lS  ~/Downloads/musescore-nightly.dmg| awk {'print $4'})
+size_in_mb=$(echo "$size / 1000000" | bc)
+if (( size_in_mb < 50 )) ; then 
+  echo "The file size is only $size_in_mb MB ($size bites). This is suspicious. (file name :  $latest_file)"
+fi
+
 
 
 # mounting fs. It often fails the first time, I don't know why. 
+i=0
 while ! hdiutil mount ~/Downloads/musescore-nightly.dmg 
 do 
   echo "retrying to mount ~/Downloads/musescore-nightly.dmg"
+  i=$i+1
+  if (( i >= 5 )) ; then break; fi
 done
 
 app_volume_name=$(ls -1rt /volumes |grep -i musescore |tail -1)
 apppath=$(find "/Volumes/$app_volume_name" -name "MuseScore*.app")
 application_name=$(basename "$apppath")
+
+#echo "app_volume_name=$app_volume_name"  
+#echo "apppath=$apppath"  
+#echo "application_name=$application_name "
 
 cp -R "$apppath"  /Applications/ 
 open "/Applications/$application_name"
