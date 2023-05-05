@@ -20,15 +20,14 @@ do
 done
 
 #download new version
-latest_file=$(curl -s "https://ftp.osuosl.org/pub/musescore-nightlies/macos/4x/nightly/\?C\=M\;O\=A" | grep href | grep MuseScoreNightly | grep latest |grep -v master | head -1 | sed 's/^.*Muse/Muse/' | sed 's/dmg.*$/dmg/')
+latest_file=$(curl -s "https://ftp.osuosl.org/pub/musescore-nightlies/macos/4x/nightly//?C\=M\;O\=A" | grep href | grep MuseScoreNightly | grep latest |grep -v master | head -1 | sed 's/^.*Muse/Muse/' | sed 's/dmg.*$/dmg/')
 url="https://ftp.osuosl.org/pub/musescore-nightlies/macos/4x/nightly/$latest_file"
-#echo "Downloading $url"
+echo "Downloading $url"
 curl -s "$url" --output ~/Downloads/musescore-nightly.dmg
 
-size=$(ls -lS  ~/Downloads/musescore-nightly.dmg| awk {'print $4'})
-size_in_mb=$(echo "$size / 1000000" | bc)
-if (( size_in_mb < 50 )) ; then 
-  echo "The file size is only $size_in_mb MB ($size bites). This is suspicious. (file name :  $latest_file)"
+size=$(du -m ~/Downloads/musescore-nightly.dmg| awk '{print $1}')
+if (( size < 50 )) ; then 
+  echo "The file size is only $size MB. This is suspicious. (file name :  $latest_file)"
 fi
 
 
