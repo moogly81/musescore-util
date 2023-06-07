@@ -20,13 +20,19 @@ do
 done
 
 #download new version
-latest_file=$(curl -s "https://ftp.osuosl.org/pub/musescore-nightlies/macos/4x/nightly//?C\=M\;O\=A" | grep href | grep MuseScoreNightly | grep latest | head -1 | sed 's/^.*Muse/Muse/' | sed 's/dmg.*$/dmg/')
-if [ -n "$latest_file" ]; then 
+releases_url="https://ftp.osuosl.org/pub/musescore-nightlies/macos/4x/nightly/"
+#echo $releases_url
+#curl -s $releases_url
+latest_file=$(curl -s "$releases_url" | grep href | grep MuseScoreNightly | grep latest | head -1 | sed 's/^.*Muse/Muse/' | sed 's/dmg.*$/dmg/' )
+echo $latest_file
+
+#latest_file=$(curl -s "$releases_url" | grep href | grep MuseScoreNightly | grep latest | head -1 | sed 's/^.*Muse/Muse/' | sed 's/dmg.*$/dmg/')
+if [ -z "$latest_file" ]; then 
   echo "Latest file not found. "
   echo "check this command : "
-  echo 'curl -s "https://ftp.osuosl.org/pub/musescore-nightlies/macos/4x/nightly//?C\=M\;O\=A" | grep href | grep MuseScoreNightly | grep latest | head -1 | sed ''s/^.*Muse/Muse/'' | sed ''s/dmg.*$/dmg/'''
+  echo 'curl -s '$releases_url' | grep href | grep MuseScoreNightly | grep latest | head -1 | sed ''s/^.*Muse/Muse/'' | sed ''s/dmg.*$/dmg/'''
   exit 1
-fi
+fi  
 
 url="https://ftp.osuosl.org/pub/musescore-nightlies/macos/4x/nightly/$latest_file"
 echo "Downloading $url"
