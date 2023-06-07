@@ -19,28 +19,22 @@ do
   echo "$file removed successfully"
 done
 
-#download new version
 releases_url="https://ftp.osuosl.org/pub/musescore-nightlies/macos/4x/nightly/"
-#echo $releases_url
-#curl -s $releases_url
-latest_file=$(curl -s "$releases_url" | grep href | grep MuseScoreNightly | grep latest | head -1 | sed 's/^.*Muse/Muse/' | sed 's/dmg.*$/dmg/' )
-echo $latest_file
+latest_filename=$(curl -s "$releases_url" | grep href | grep MuseScoreNightly | grep latest | head -1 | sed 's/^.*Muse/Muse/' | sed 's/dmg.*$/dmg/' )
 
-#latest_file=$(curl -s "$releases_url" | grep href | grep MuseScoreNightly | grep latest | head -1 | sed 's/^.*Muse/Muse/' | sed 's/dmg.*$/dmg/')
-if [ -z "$latest_file" ]; then 
+if [ -z "$latest_filename" ]; then 
   echo "Latest file not found. "
   echo "check this command : "
-  echo 'curl -s '$releases_url' | grep href | grep MuseScoreNightly | grep latest | head -1 | sed ''s/^.*Muse/Muse/'' | sed ''s/dmg.*$/dmg/'''
   exit 1
 fi  
 
-url="https://ftp.osuosl.org/pub/musescore-nightlies/macos/4x/nightly/$latest_file"
+url="https://ftp.osuosl.org/pub/musescore-nightlies/macos/4x/nightly/$latest_filename"
 echo "Downloading $url"
 curl -s "$url" --output ~/Downloads/musescore-nightly.dmg
 
 size=$(du -m ~/Downloads/musescore-nightly.dmg| awk '{print $1}')
 if (( size < 50 )) ; then 
-  echo "The file size is only $size MB. This is suspicious. (file name :  $latest_file)"
+  echo "The file size is only $size MB. This is suspicious. (file name :  $latest_filename)"
 fi
 
 
